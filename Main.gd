@@ -1,6 +1,7 @@
 extends Node2D
 
 const TileObj = preload("res://Tile.tscn")
+const SHUFFLE_CNT = 30 # シャッフル回数.
 
 enum eState {
 	MAIN,
@@ -47,29 +48,22 @@ func _ready() -> void:
 	
 	# タイルをランダムに配置する.
 	randomize()
-	var l = []
-	for i in range(_arr.width * _arr.height):
-		l.append(i + 1) # 1始まり.
-	l.shuffle()
+	var tmp = _create_random()
 	
-	# 強制クリア.
-	#l = [1, 2, 3, 4, 5, 6, 7, 8]
-	
-	print(l)
 	var idx = 0
-	for v in l:
-		if v == _arr.width * _arr.height:
-			continue # 最後のパネルを除外する.
+	for j in range(tmp.height):
+		for i in range(tmp.width):
+			var v = tmp.get_v(i, j)
+			if v == _arr.width * _arr.height:
+				continue # 最後のパネルを除外する.
 		
-		_arr.set_from_idx(idx, v)
-		var i = Common.idx_to_grid_x(idx)
-		var j = Common.idx_to_grid_y(idx)
-		var tile = TileObj.instance()
-		add_child(tile)
-		tile.setup(i, j, v)
-		_tiles.append(tile)
+			_arr.set_v(i, j, v)
+			var tile = TileObj.instance()
+			add_child(tile)
+			tile.setup(i, j, v)
+			_tiles.append(tile)
 		
-		idx += 1
+			idx += 1
 
 ## 更新.
 func _process(delta: float) -> void:
@@ -185,6 +179,42 @@ func _check_completed() -> bool:
 			
 	return true # 正解.
 
+## 完全なランダムだと解法がなくなるので答えからランダムで動かします.
+func _create_random() -> Common.Array2D:
+	var tmp = Common.Array2D.new(Common.width(), Common.height())
+	
+	var num = 1 # 1始まり.
+	for j in range(tmp.height):
+		for i in range(tmp.width):
+			tmp.set_v(i, j, num)
+			num += 1
+	# 空とする番号.
+	var empty = Common.width() * Common.height()
+	
+	# ここからシャッフル処理.
+	var cnt = SHUFFLE_CNT
+	if Common.get_mode() == Common.eMode.TILE_4x4:
+		cnt *= 5 # 4x4のときはシャッフル回数を増やします
+	for i in range(cnt):
+		var idx = tmp.search(empty)
+		var tbl = [[-1, 0], [0, -1], [1, 0], [0, 1]]
+		tbl.shuffle()
+		for v in tbl:
+			var i1 = Common.idx_to_grid_x(idx)
+			var j1 = Common.idx_to_grid_y(idx)
+			var dx = v[0]
+			var dy = v[1]
+			var i2 = i1 + dx
+			var j2 = j1 + dy
+			if tmp.swap(i1, j1, i2, j2):
+				break # 交換成功.
+	
+	return tmp
+
+	
+# -------------------------------------------------------
+# signal.
+# -------------------------------------------------------
 ## やり直しボタン.
 func _on_ButtonRetry_pressed() -> void:
 	if _next_mode != Common.eMode.NONE:

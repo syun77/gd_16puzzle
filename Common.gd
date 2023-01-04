@@ -104,16 +104,27 @@ class Array2D:
 	func set_from_idx(idx:int, v:int) -> void:
 		_pool[idx] = v
 	
+	## 指定の値を探す.
+	func search(v:int) -> int:
+		var idx = 0
+		for v2 in _pool:
+			if v == v2:
+				return idx
+			idx += 1
+		
+		return -1 # 見つからなかった.
+	
 	## 値を入れ替える.
-	func swap(i1:int, j1:int, i2:int, j2:int) -> void:
+	func swap(i1:int, j1:int, i2:int, j2:int) -> bool:
 		var n1 = get_v(i1, j1)
 		var n2 = get_v(i2, j2)
 		if n1 == OUT_OF_RANGE or n2 == OUT_OF_RANGE:
-			var buf = "(i1,j1):(%d,%d)=%d (i2,j2):(%d,%d)=%d"%[i1, j1, n1, i2, j2, n2]
-			push_error("領域外の位置を指定しました " + buf)
-			return # 領域外の場合は何もしない.
+			#var buf = "(i1,j1):(%d,%d)=%d (i2,j2):(%d,%d)=%d"%[i1, j1, n1, i2, j2, n2]
+			#push_error("領域外の位置を指定しました " + buf)
+			return false # 領域外の場合は何もしない.
 		set_v(i1, j1, n2)
 		set_v(i2, j2, n1)
+		return true # 入れ替え成功.
 
 ## グリッド座標系をワールド座標系に変換する (X).
 func to_world_x(i:float, is_center:bool=false) -> float:
