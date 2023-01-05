@@ -9,6 +9,7 @@ enum eState {
 	COMPLETED, # 正解.
 }
 
+onready var _btn_retry = $ButtonRetry
 onready var _checkbox4x4 = $RadioButtonMode/CheckBox4x4
 onready var _completed_spr = $CompletedSpr
 onready var _checkbox_number = $CheckBoxNumber
@@ -92,6 +93,7 @@ func _update_main(_delta:float) -> void:
 	
 	if _check_completed():
 		# 完了.
+		#_btn_retry.disabled = true # 押せなくする.
 		_state = eState.WAIT
 
 ## 更新 > 完了待ち.
@@ -191,24 +193,36 @@ func _create_random() -> Common.Array2D:
 	# 空とする番号.
 	var empty = Common.width() * Common.height()
 	
-	# ここからシャッフル処理.
-	var cnt = SHUFFLE_CNT
-	if Common.get_mode() == Common.eMode.TILE_4x4:
-		cnt *= 5 # 4x4のときはシャッフル回数を増やします
-	for i in range(cnt):
-		var idx = tmp.search(empty)
-		var tbl = [[-1, 0], [0, -1], [1, 0], [0, 1]]
-		tbl.shuffle()
-		for v in tbl:
-			var i1 = Common.idx_to_grid_x(idx)
-			var j1 = Common.idx_to_grid_y(idx)
-			var dx = v[0]
-			var dy = v[1]
-			var i2 = i1 + dx
-			var j2 = j1 + dy
-			if tmp.swap(i1, j1, i2, j2):
-				break # 交換成功.
-	
+	while true:
+		# ここからシャッフル処理.
+		var cnt = SHUFFLE_CNT
+		if Common.get_mode() == Common.eMode.TILE_4x4:
+			cnt *= 5 # 4x4のときはシャッフル回数を増やします
+		for i in range(cnt):
+			var idx = tmp.search(empty)
+			var tbl = [[-1, 0], [0, -1], [1, 0], [0, 1]]
+			tbl.shuffle()
+			for v in tbl:
+				var i1 = Common.idx_to_grid_x(idx)
+				var j1 = Common.idx_to_grid_y(idx)
+				var dx = v[0]
+				var dy = v[1]
+				var i2 = i1 + dx
+				var j2 = j1 + dy
+				if tmp.swap(i1, j1, i2, j2):
+					break # 交換成功.
+		
+		var is_completed = true
+		var num2 = 1 # 1始まり.
+		for j in range(tmp.height):
+			for i in range(tmp.width):
+				if num2 != tmp.get_v(i, j):
+					is_completed = false # 完成していないのでOK
+					break
+				num2 += 1
+		
+		if is_completed == false:
+			break # 完成していないのでOK
 	return tmp
 
 	
