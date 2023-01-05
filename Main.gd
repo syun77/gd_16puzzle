@@ -91,7 +91,7 @@ func _update_main(_delta:float) -> void:
 			# スライドを実行する.
 			_panel_slide(i, j)
 	
-	if _check_completed():
+	if _check_completed(_arr):
 		# 完了.
 		#_btn_retry.disabled = true # 押せなくする.
 		_state = eState.WAIT
@@ -167,11 +167,11 @@ func _panel_slide_sub(idx_list:Array, i:int, j:int, dx:int, dy:int) -> bool:
 	return _panel_slide_sub(idx_list, inext, jnext, dx, dy)
 
 ## 正解判定.
-func _check_completed() -> bool:
+func _check_completed(arr:Common.Array2D) -> bool:
 	var idx = 1
-	for j in range(_arr.height):
-		for i in range(_arr.width):
-			var n = _arr.get_v(i, j)
+	for j in range(arr.height):
+		for i in range(arr.width):
+			var n = arr.get_v(i, j)
 			if n == Common.Array2D.EMPTY:
 				idx += 1
 				continue # 空欄は除外.
@@ -212,15 +212,8 @@ func _create_random() -> Common.Array2D:
 				if tmp.swap(i1, j1, i2, j2):
 					break # 交換成功.
 		
-		var is_completed = true
-		var num2 = 1 # 1始まり.
-		for j in range(tmp.height):
-			for i in range(tmp.width):
-				if num2 != tmp.get_v(i, j):
-					is_completed = false # 完成していないのでOK
-					break
-				num2 += 1
-		
+		# 完成しているかどうか.
+		var is_completed = _check_completed(tmp)		
 		if is_completed == false:
 			break # 完成していないのでOK
 	return tmp
