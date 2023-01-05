@@ -135,7 +135,7 @@ func _panel_slide(i:int, j:int) -> void:
 		if _panel_slide_sub(idx_list, i, j, dx, dy):
 			# 移動可能.
 			idx_list.invert() # 逆順にする.
-			print(idx_list)
+			#print(idx_list)
 			for idx in idx_list:
 				var i2 = Common.idx_to_grid_x(idx)
 				var j2 = Common.idx_to_grid_y(idx)

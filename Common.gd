@@ -141,13 +141,25 @@ func to_world_y(j:float, is_center:bool=false) -> float:
 	return wy
 
 ## ワールド座標系をグリッド座標系に変換する (X).
-func to_grid_x(x:float) -> float:
-	var i = int((x - OFS_X) / tile_size())
+func to_grid_x(x:float, is_center:bool=false) -> float:
+	if is_center:
+		x -= tile_size() / 2.0 # 中央基準の場合は左上に移動させる
+	var x2 = x - OFS_X
+	if x2 < 0:
+		# 領域外.
+		return -1.0
+	var i = int(x2 / tile_size())
 	return i
 
 ## ワールド座標系をグリッド座標系に変換する (Y).
-func to_grid_y(y:float) -> float:
-	var j = int((y - OFS_Y) / tile_size())
+func to_grid_y(y:float, is_center:bool=false) -> float:
+	if is_center:
+		y -= tile_size() / 2.0 # 中央基準の場合は左上に移動させる
+	var y2 = y - OFS_Y
+	if y2 < 0:
+		# 領域外.
+		return -1.0
+	var j = int(y2 / tile_size())
 	return j
 
 ## インデックス座標をグリッドX座標に変換する.
