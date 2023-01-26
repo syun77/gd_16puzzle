@@ -127,16 +127,20 @@ func _get_tile_from_number(n:int) -> Tile:
 
 ## パネルをスライドする.
 func _panel_slide(i:int, j:int) -> void:
-	
+
+	# 上下左右の方向を調べる.
 	for v in [[-1, 0], [0, -1], [1, 0], [0, 1]]:
 		var dx = v[0]
 		var dy = v[1]
-		var idx_list = []
-		# リストに追加.
+		
+		var idx_list = [] # 移動可能パネルのリスト (インデックス座標系)
+		# 開始パネルをリストに追加.
 		idx_list.append(Common.grid_to_idx(i, j))
+		
+		# 移動可能かどうかチェックする.
 		if _panel_slide_sub(idx_list, i, j, dx, dy):
 			# 移動可能.
-			idx_list.invert() # 逆順にする.
+			idx_list.invert() # 後ろから動かしたいので逆順にする.
 			#print(idx_list)
 			for idx in idx_list:
 				var i2 = Common.idx_to_grid_x(idx)
@@ -150,6 +154,11 @@ func _panel_slide(i:int, j:int) -> void:
 			_arr.set_v(i, j, Common.Array2D.EMPTY)
 
 ## PoolIntArrayにすると実体のコピー渡しになるのであえてArrayで渡す.
+## @param idx_list 移動可能なパネルの位置を表すリスト
+## @param i 基準座標(X)
+## @param j 基準座標(Y)
+## @param dx 移動方向(X)
+## @param dy 移動方向(Y)
 func _panel_slide_sub(idx_list:Array, i:int, j:int, dx:int, dy:int) -> bool:
 	var inext = i + dx
 	var jnext = j + dy
@@ -181,15 +190,17 @@ func _check_completed(arr:Common.Array2D) -> bool:
 			
 	return true # 正解.
 
-## 完全なランダムだと解法がなくなるので答えからランダムで動かします.
+## 完全なランダムだと解法がなくなる可能性があるので答えからランダムで動かします.
 func _create_random() -> Common.Array2D:
 	var tmp = Common.Array2D.new(Common.width(), Common.height())
 	
+	# 完成の状態を作る
 	var num = 1 # 1始まり.
 	for j in range(tmp.height):
 		for i in range(tmp.width):
 			tmp.set_v(i, j, num)
 			num += 1
+	
 	# 空とする番号.
 	var empty = Common.width() * Common.height()
 	
@@ -199,9 +210,9 @@ func _create_random() -> Common.Array2D:
 		if Common.get_mode() == Common.eMode.TILE_4x4:
 			cnt *= 5 # 4x4のときはシャッフル回数を増やします
 		for i in range(cnt):
-			var idx = tmp.search(empty)
-			var tbl = [[-1, 0], [0, -1], [1, 0], [0, 1]]
-			tbl.shuffle()
+			var idx = tmp.search(empty) # 空のパネルを探す.
+			var tbl = [[-1, 0], [0, -1], [1, 0], [0, 1]] # 上下左右を調べる.
+			tbl.shuffle() # シャッフルする.
 			for v in tbl:
 				var i1 = Common.idx_to_grid_x(idx)
 				var j1 = Common.idx_to_grid_y(idx)
