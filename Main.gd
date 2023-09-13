@@ -9,13 +9,13 @@ enum eState {
 	COMPLETED, # 正解.
 }
 
-onready var _btn_retry = $ButtonRetry
-onready var _checkbox4x4 = $RadioButtonMode/CheckBox4x4
-onready var _completed_spr = $CompletedSpr
-onready var _checkbox_number = $CheckBoxNumber
-onready var _answer = $Answer
-onready var _checkbox002 = $RadioButtonImage/CheckBox002
-onready var _checkbox003 = $RadioButtonImage/CheckBox003
+@onready var _btn_retry = $ButtonRetry
+@onready var _checkbox4x4 = $RadioButtonMode/CheckBox4x4
+@onready var _completed_spr = $CompletedSpr
+@onready var _checkbox_number = $CheckBoxNumber
+@onready var _answer = $Answer
+@onready var _checkbox002 = $RadioButtonImage/CheckBox002
+@onready var _checkbox003 = $RadioButtonImage/CheckBox003
 
 var _state = eState.MAIN
 var _tiles = []
@@ -26,13 +26,13 @@ var _next_image_number = 0 # 画像を変更したときの番号.
 ## 開始.
 func _ready() -> void:
 	# 番号を表示するかどうか.
-	_checkbox_number.pressed = Common.is_display_number()
+	_checkbox_number.button_pressed = Common.is_display_number()
 	
 	match Common.get_mode():
 		Common.eMode.TILE_3x3:
 			pass
 		Common.eMode.TILE_4x4:
-			_checkbox4x4.pressed = true
+			_checkbox4x4.button_pressed = true
 	
 	_arr = Common.Array2D.new(Common.width(), Common.height())
 	
@@ -40,9 +40,9 @@ func _ready() -> void:
 		1:
 			pass
 		2:
-			_checkbox002.pressed = true
+			_checkbox002.button_pressed = true
 		3:
-			_checkbox003.pressed = true	
+			_checkbox003.button_pressed = true	
 	# 画像の更新.
 	_answer.texture = Common.get_image()
 	_completed_spr.texture = Common.get_image()
@@ -59,7 +59,7 @@ func _ready() -> void:
 				continue # 最後のパネルを除外する.
 		
 			_arr.set_v(i, j, v)
-			var tile = TileObj.instance()
+			var tile = TileObj.instantiate()
 			add_child(tile)
 			tile.setup(i, j, v)
 			_tiles.append(tile)
@@ -79,7 +79,7 @@ func _process(delta: float) -> void:
 ## 更新 > メイン.
 func _update_main(_delta:float) -> void:
 	# 番号を表示するかどうか.
-	Common.set_display_number(_checkbox_number.pressed)
+	Common.set_display_number(_checkbox_number.button_pressed)
 	
 	var mouse = get_viewport().get_mouse_position()
 	var i = Common.to_grid_x(mouse.x)
@@ -140,7 +140,7 @@ func _panel_slide(i:int, j:int) -> void:
 		# 移動可能かどうかチェックする.
 		if _panel_slide_sub(idx_list, i, j, dx, dy):
 			# 移動可能.
-			idx_list.invert() # 後ろから動かしたいので逆順にする.
+			idx_list.reverse() # 後ろから動かしたいので逆順にする.
 			#print(idx_list)
 			for idx in idx_list:
 				var i2 = Common.idx_to_grid_x(idx)
@@ -241,7 +241,7 @@ func _on_ButtonRetry_pressed() -> void:
 	if _next_image_number != 0:
 		# 画像の切り替えがあった.
 		Common.set_image_number(_next_image_number)
-	get_tree().change_scene("res://Main.tscn")
+	get_tree().change_scene_to_file("res://Main.tscn")
 
 ## フィールドサイズ変更.
 func _on_CheckBox3x3_toggled(button_pressed: bool) -> void:

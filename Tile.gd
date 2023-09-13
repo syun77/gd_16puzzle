@@ -4,9 +4,9 @@ class_name Tile
 
 const MOVE_SPEED = 10.0
 
-onready var _spr = $Sprite
-onready var _frame = $Frame
-onready var _label = $Label
+@onready var _spr = $Sprite2D
+@onready var _frame = $Frame
+@onready var _label = $Label
 
 # 数値
 var _number = 0
@@ -66,8 +66,8 @@ func set_grid_pos(i:int, j:int) -> void:
 	move_to(i, j)
 	
 	# 開始位置を少しずらす.
-	_x += rand_range(-1, 1)
-	_y += rand_range(-1, 1)
+	_x += randf_range(-1, 1)
+	_y += randf_range(-1, 1)
 
 ## 指定の位置に移動する.
 func move_to(i:int, j:int) -> void:
@@ -92,8 +92,8 @@ func _process(delta: float) -> void:
 	position.y = Common.to_world_y(_y, true)
 	
 	# 点滅.
-	_frame.modulate = Color.gray
+	_frame.modulate = Color.GRAY
 	if _is_blink:
 		_is_blink = false
 		var rate = abs(sin(_timer * 4))
-		_frame.modulate = Color.red.linear_interpolate(Color.yellow, rate)
+		_frame.modulate = Color.RED.lerp(Color.YELLOW, rate)
