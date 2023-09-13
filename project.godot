@@ -23,6 +23,10 @@ Common="*res://Common.gd"
 
 window/dpi/allow_hidpi=false
 
+[editor]
+
+movie_writer/movie_file="movie.avi"
+
 [gui]
 
 common/drop_mouse_on_gui_input_disabled=true
